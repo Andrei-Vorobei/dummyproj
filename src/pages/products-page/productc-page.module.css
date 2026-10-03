@@ -1,0 +1,18 @@
+.productCard {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 1rem;
+  width: 300px;
+  cursor: pointer;
+}
+
+.cardsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.spinner {
+  height: 100%;
+  width: 100%;
+}
