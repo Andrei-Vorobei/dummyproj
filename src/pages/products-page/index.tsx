@@ -18,9 +18,9 @@ const ProductsPage = (): JSX.Element => {
   const currentPage = useAppSelector(getCurrentPage);
   const { data, error, isLoading } = useGetProductsQuery({ limit: pageSize, skip: (currentPage - 1) * pageSize });
 
-  useEffect(() => {
-    console.log('data: ', data);
-  }, [data]);
+  // useEffect(() => {
+  //   console.log('data: ', data);
+  // }, [data]);
 
   const errorMessage = useMemo(() => {
     if (!error) return null;
@@ -32,13 +32,13 @@ const ProductsPage = (): JSX.Element => {
   }, [error]);
 
   const addToCartHandler = (product: Product): void => {
-    console.log('addToCart product: ', product);
+    // console.log('addToCart product: ', product);
     dispatch(addToCart(product));
   };
 
   const paginationHandler: PaginationProps['onChange'] = (current: number, pageSize: number): void => {
-    console.log('Current page:', current);
-    console.log('Page size:', pageSize);
+    // console.log('Current page:', current);
+    // console.log('Page size:', pageSize);
     dispatch(setPageSize(pageSize));
     dispatch(setCurrentPage(current));
   };

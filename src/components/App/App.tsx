@@ -51,7 +51,7 @@ const App: React.FC = (): JSX.Element => {
   }, []);
 
   useEffect(() => {
-    console.log('cart: ', cart);
+    // console.log('cart: ', cart);
     console.log('location: ', location);
   }, [cart, location]);
 
