@@ -1,4 +1,4 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit/react';
 
 import { cartApi, type CartResponse } from '@/app-store/api/cart-api';
 
@@ -26,7 +26,7 @@ export const cartSlice = createSlice({
   initialState,
   selectors: {
     getCart: (state: CartResponse) => state,
-    getCount: (state) => state.products.length,
+    getCount: (state) => state.totalQuantity,
   },
   reducers: {
     addToCart: (state, action: PayloadAction<Product>) => {
@@ -61,6 +61,19 @@ export const cartSlice = createSlice({
         recalcculatingCartTotals(state);
       }
     },
+    changeQuantity: (state, action: PayloadAction<{ productId: number; change: -1 | 1 }>) => {
+      const { productId, change } = action.payload;
+      const product = state.products.find((item) => item.id === productId);
+
+      if (!product) {
+        return;
+      }
+
+      product.quantity = Math.max(1, product.quantity + change);
+      product.total = product.price * product.quantity;
+      product.discountedTotal = product.total * (1 - product.discountPercentage / 100);
+      recalcculatingCartTotals(state);
+    },
     clearCart: (state) => {
       state.products = [];
       state.total = 0;
@@ -77,4 +90,4 @@ export const cartSlice = createSlice({
 });
 
 export const { getCart, getCount } = cartSlice.selectors;
-export const { addToCart, removeFromCart, clearCart } = cartSlice.actions;
+export const { addToCart, removeFromCart, changeQuantity, clearCart } = cartSlice.actions;

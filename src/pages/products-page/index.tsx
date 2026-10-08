@@ -1,16 +1,15 @@
 import type { JSX } from 'react';
 
-import { Button, Card, Flex, Pagination, Spin, Typography, type PaginationProps } from 'antd';
-import { useEffect, useMemo } from 'react';
+import { Flex, Pagination, Spin, type PaginationProps } from 'antd';
+import { useMemo } from 'react';
 
 import { useGetProductsQuery, type Product } from '@/app-store/api/products-api';
 import { getPageSize, setPageSize, getCurrentPage, setCurrentPage } from '@/app-store/reducers/app-global';
 import { addToCart } from '@/app-store/reducers/cart-slice';
+import ProductCard from '@/components/product-card';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 
 import styles from './productc-page.module.css';
-
-const { Meta } = Card;
 
 const ProductsPage = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -53,36 +52,11 @@ const ProductsPage = (): JSX.Element => {
           <Spin size="large" />
         </Flex>
       )}
-      <div className={styles.cardsContainer}>
+      <ul className={styles.cardsContainer}>
         {data?.products.map((product) => (
-          <Card
-            key={product.id}
-            hoverable
-            title={product.title}
-            className={styles.productCard}
-            cover={<img src={product.thumbnail} alt={product.title} />}
-          >
-            <Flex vertical justify="space-between" gap={8}>
-              <Meta
-                description={
-                  product.description.length > 100
-                    ? `${product.description.slice(0, 100)}...`
-                    : product.description
-                }
-              />
-              <Typography.Text strong>скидка: {product.discountPercentage}%</Typography.Text>
-              <Typography.Text strong>${product.price}</Typography.Text>
-              <Typography.Text strong>
-                ${(product.price - (product.price * product.discountPercentage) / 100).toFixed(2)}
-              </Typography.Text>
-              <Typography.Text strong>рэйтинг: {product.rating}</Typography.Text>
-              <Button type="primary" onClick={() => addToCartHandler(product)}>
-                Add to Cart
-              </Button>
-            </Flex>
-          </Card>
+          <ProductCard key={product.id} product={product} onAddToCart={addToCartHandler} />
         ))}
-      </div>
+      </ul>
       <Pagination
         disabled={isLoading}
         pageSize={pageSize}

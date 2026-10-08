@@ -2,10 +2,11 @@ import type { JSX } from 'react';
 
 import { useForm } from 'react-hook-form';
 
+import { useRegisterMutation } from '@/app-store/api/auth';
 import Button from '@/components/UI/button/button';
 import TextInput from '@/components/UI/text-input/text-input';
 
-import styles from './login-form.module.css';
+import styles from './registration-form.module.css';
 
 type RegistrationFormValues = {
   name: string;
@@ -14,32 +15,47 @@ type RegistrationFormValues = {
 };
 
 const copy = {
-  title: 'Войти',
-  description: 'Создайте аккаунт, заполнив форму ниже.',
+  title: 'Регистрация',
+  description: 'Создайте аккаунт, заполнив форму ниже',
   name: 'Имя',
   namePlaceholder: 'Введите имя',
-  nameRequired: 'Введите имя.',
-  nameMinLength: 'Имя должно содержать не менее 2 символов.',
+  nameRequired: 'Введите имя',
+  nameMinLength: 'Имя должно содержать не менее 2 символов',
   email: 'Электронная почта',
-  emailRequired: 'Введите электронную почту.',
-  emailInvalid: 'Введите корректный адрес электронной почты.',
+  emailRequired: 'Введите электронную почту',
+  emailInvalid: 'Введите корректный адрес электронной почты',
   password: 'Пароль',
   passwordPlaceholder: 'Не менее 8 символов',
-  passwordRequired: 'Введите пароль.',
-  passwordMinLength: 'Пароль должен содержать не менее 8 символов.',
-  submit: 'Войти',
+  passwordRequired: 'Введите пароль',
+  passwordMinLength: 'Пароль должен содержать не менее 8 символов',
+  submit: 'Зарегистрироваться',
+  submitting: 'Registering...',
+  requestFailed: 'Registration failed. Please try again',
+  success: 'Registration completed successfully',
 };
 
-const LoginForm = (): JSX.Element => {
+const RegistrationForm = (): JSX.Element => {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<RegistrationFormValues>();
 
-  const onSubmit = (data: RegistrationFormValues): void => {
-    console.log(data);
+  const [registerUser, { isLoading, isError, error, isSuccess }] = useRegisterMutation();
+
+  const onSubmit = async (data: RegistrationFormValues): Promise<void> => {
+    await registerUser({ username: data.name, email: data.email, password: data.password });
   };
+
+  const apiErrorMessage =
+    isError && typeof error === 'object' && error !== null && 'data' in error
+      ? typeof error.data === 'object' &&
+        error.data !== null &&
+        'message' in error.data &&
+        typeof error.data.message === 'string'
+        ? error.data.message
+        : copy.requestFailed
+      : null;
 
   return (
     <section className={styles.container} aria-labelledby="registration-title">
@@ -119,12 +135,22 @@ const LoginForm = (): JSX.Element => {
             </p>
           ) : null}
         </div>
-        <Button className={styles.submit} type="submit">
-          {copy.submit}
+        {apiErrorMessage ? (
+          <p className={styles.error} role="alert">
+            {apiErrorMessage}
+          </p>
+        ) : null}
+        {isSuccess ? (
+          <p className={styles.success} role="status">
+            {copy.success}
+          </p>
+        ) : null}
+        <Button className={styles.submit} type="submit" disabled={isLoading} aria-busy={isLoading}>
+          {isLoading ? copy.submitting : copy.submit}
         </Button>
       </form>
     </section>
   );
 };
 
-export default LoginForm;
+export default RegistrationForm;

@@ -1,7 +1,9 @@
 import type { InputHTMLAttributes, JSX } from 'react';
 import type { FieldPath, FieldValues, RegisterOptions, UseFormRegister } from 'react-hook-form';
 
+import { EyeFilled, EyeInvisibleFilled } from '@ant-design/icons';
 import { clsx } from 'clsx';
+import { useState } from 'react';
 
 import styles from './text-input.module.css';
 
@@ -22,6 +24,9 @@ const TextInput = <TFieldValues extends FieldValues>({
   className,
   ...props
 }: TextInputProps<TFieldValues>): JSX.Element => {
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const isPassword = type === 'password';
+
   return (
     <div className={styles.wrapper}>
       {label ? (
@@ -29,14 +34,32 @@ const TextInput = <TFieldValues extends FieldValues>({
           {label}
         </label>
       ) : null}
-      <input
-        id={name}
-        type={type}
-        placeholder={placeholder}
-        className={clsx(styles.input, className)}
-        {...(register ? register(name, rules) : {})}
-        {...props}
-      />
+      <div className={styles.inputWrapper}>
+        <input
+          id={name}
+          type={isPassword && isPasswordVisible ? 'text' : type}
+          placeholder={placeholder}
+          className={clsx(styles.input, isPassword && styles.passwordInput, className)}
+          {...(register ? register(name, rules) : {})}
+          {...props}
+        />
+        {isPassword ? (
+          <button
+            className={styles.passwordToggle}
+            type="button"
+            aria-label={isPasswordVisible ? 'Скрыть пароль' : 'Показать пароль'}
+            aria-pressed={isPasswordVisible}
+            disabled={props.disabled}
+            onClick={() => setIsPasswordVisible((visible) => !visible)}
+          >
+            {isPasswordVisible ? (
+              <EyeInvisibleFilled style={{ fontSize: '24px' }} />
+            ) : (
+              <EyeFilled style={{ fontSize: '24px' }} />
+            )}
+          </button>
+        ) : null}
+      </div>
     </div>
   );
 };

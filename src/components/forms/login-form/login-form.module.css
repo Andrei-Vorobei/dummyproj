@@ -43,6 +43,13 @@
   line-height: 1.4;
 }
 
+.success {
+  margin: 0;
+  color: #15803d;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
 .submit {
   width: 100%;
   margin-top: 4px;

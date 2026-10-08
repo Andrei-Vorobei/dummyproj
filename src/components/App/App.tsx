@@ -1,18 +1,19 @@
 import type { JSX } from 'react';
 
-import { DeleteOutlined, HomeFilled, ProductFilled, ShoppingCartOutlined, StarFilled } from '@ant-design/icons';
-import { Button, Divider, Empty, Flex, FloatButton, Layout, Menu, Modal, theme, Typography } from 'antd';
+import { HomeFilled, ProductFilled, ShoppingCartOutlined, StarFilled } from '@ant-design/icons';
+import { Empty, FloatButton, Layout, Menu, Modal, theme } from 'antd';
 import { useEffect, useMemo } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router';
 
+import { useGetMeQuery, useRefreshQuery } from '@/app-store/api/auth';
 import { useGetCartQuery } from '@/app-store/api/cart-api';
 import { getIsOpenCartModal, setIsOpenCartModal } from '@/app-store/reducers/app-global';
-import { getCart, clearCart, removeFromCart, getCount } from '@/app-store/reducers/cart-slice';
+import { getCart, clearCart, removeFromCart, changeQuantity, getCount } from '@/app-store/reducers/cart-slice';
+import { getProfile } from '@/app-store/reducers/user-slice';
+import Cart from '@/components/cart';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 
 const { Header, Content, Footer, Sider } = Layout;
-
-const { Text } = Typography;
 
 const App: React.FC = (): JSX.Element => {
   const navigate = useNavigate();
@@ -21,9 +22,13 @@ const App: React.FC = (): JSX.Element => {
 
   const isOpenCartModal = useAppSelector(getIsOpenCartModal);
 
+  useRefreshQuery();
+  const accessToken = useAppSelector((state) => state.user.accessToken);
+  useGetMeQuery(undefined, { skip: !accessToken });
   useGetCartQuery();
   const cart = useAppSelector(getCart);
   const cartCount = useAppSelector(getCount);
+  const profile = useAppSelector(getProfile);
 
   const sidebarItems = useMemo(() => {
     return [
@@ -38,14 +43,19 @@ const App: React.FC = (): JSX.Element => {
         label: 'Products',
       },
       {
-        key: '/favorites',
+        key: '/login',
         icon: <StarFilled />,
-        label: 'Favorites',
+        label: 'login',
       },
       {
-        key: '/contact',
+        key: '/register',
         icon: <StarFilled />,
-        label: 'Contact',
+        label: 'register',
+      },
+      {
+        key: '/profile',
+        icon: <StarFilled />,
+        label: 'profile',
       },
     ];
   }, []);
@@ -53,7 +63,8 @@ const App: React.FC = (): JSX.Element => {
   useEffect(() => {
     // console.log('cart: ', cart);
     console.log('location: ', location);
-  }, [cart, location]);
+    console.log('profile: ', profile);
+  }, [cart, location, profile]);
 
   const {
     token: { colorBgContainer },
@@ -71,6 +82,10 @@ const App: React.FC = (): JSX.Element => {
 
   const handleRemoveFromCart = (productId: number): void => {
     dispatch(removeFromCart(productId));
+  };
+
+  const handleChangeQuantity = (productId: number, change: -1 | 1): void => {
+    dispatch(changeQuantity({ productId, change }));
   };
 
   return (
@@ -114,65 +129,12 @@ const App: React.FC = (): JSX.Element => {
             onCancel={(): void => handleCartModal(false)}
           >
             {cart && cart.products.length > 0 ? (
-              <Flex vertical gap={16}>
-                {/* Список товаров */}
-                <Flex vertical gap={8}>
-                  {cart.products.map((product) => (
-                    <Flex
-                      key={product.id}
-                      justify="space-between"
-                      align="center"
-                      style={{
-                        padding: '12px',
-                        border: '1px solid #f0f0f0',
-                        borderRadius: '8px',
-                        background: '#fafafa',
-                      }}
-                    >
-                      <Flex vertical style={{ flex: 1 }}>
-                        <Text strong>{product.title}</Text>
-                        <Flex vertical>
-                          <Text type="secondary">
-                            Цена без скидки: ${product.price} × {product.quantity} = ${product.total}
-                          </Text>
-                          <Text type="secondary">Скидка: {product.discountPercentage}%</Text>
-                          <Text type="secondary">
-                            Цена с учетом скидки: ${product.price} × {product.discountPercentage}% = $
-                            {(product.total - (product.total * product.discountPercentage) / 100).toFixed(2)}
-                          </Text>
-                        </Flex>
-                      </Flex>
-                      <Button
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={(): void => handleRemoveFromCart(product.id)}
-                      />
-                    </Flex>
-                  ))}
-                </Flex>
-
-                {/* Итоговая сумма */}
-                <Divider />
-                <Flex vertical gap={8}>
-                  <Flex justify="space-between" align="center">
-                    <Text strong>Итого без скидки:</Text>
-                    <Text strong style={{ fontSize: '18px', color: '#1890ff' }}>
-                      ${cart.total}
-                    </Text>
-                  </Flex>
-                  <Flex justify="space-between" align="center">
-                    <Text strong>Итого с учетом скидки:</Text>
-                    <Text strong style={{ fontSize: '18px', color: '#1890ff' }}>
-                      ${cart.discountedTotal}
-                    </Text>
-                  </Flex>
-                </Flex>
-
-                {/* Кнопка очистки корзины */}
-                <Button type="link" danger onClick={handleClearCart} style={{ padding: 0, marginTop: '8px' }}>
-                  Очистить корзину
-                </Button>
-              </Flex>
+              <Cart
+                cart={cart}
+                onRemoveProduct={handleRemoveFromCart}
+                onChangeQuantity={handleChangeQuantity}
+                onClearCart={handleClearCart}
+              />
             ) : (
               <Empty
                 image={Empty.PRESENTED_IMAGE_SIMPLE}

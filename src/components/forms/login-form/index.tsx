@@ -2,49 +2,44 @@ import type { JSX } from 'react';
 
 import { useForm } from 'react-hook-form';
 
-import { useRegisterMutation } from '@/app-store/api/auth';
+import { useLoginMutation } from '@/app-store/api/auth';
 import Button from '@/components/UI/button/button';
 import TextInput from '@/components/UI/text-input/text-input';
 
-import styles from './registration-form.module.css';
+import styles from './login-form.module.css';
 
-type RegistrationFormValues = {
-  name: string;
+type LoginFormValues = {
   email: string;
   password: string;
 };
 
 const copy = {
-  title: 'Регистрация',
-  description: 'Создайте аккаунт, заполнив форму ниже',
-  name: 'Имя',
-  namePlaceholder: 'Введите имя',
-  nameRequired: 'Введите имя',
-  nameMinLength: 'Имя должно содержать не менее 2 символов',
+  title: 'Войти',
+  description: 'Войдите, используя электронную почту и пароль.',
   email: 'Электронная почта',
-  emailRequired: 'Введите электронную почту',
-  emailInvalid: 'Введите корректный адрес электронной почты',
+  emailRequired: 'Введите электронную почту.',
+  emailInvalid: 'Введите корректный адрес электронной почты.',
   password: 'Пароль',
   passwordPlaceholder: 'Не менее 8 символов',
-  passwordRequired: 'Введите пароль',
-  passwordMinLength: 'Пароль должен содержать не менее 8 символов',
-  submit: 'Зарегистрироваться',
-  submitting: 'Registering...',
-  requestFailed: 'Registration failed. Please try again',
-  success: 'Registration completed successfully',
+  passwordRequired: 'Введите пароль.',
+  passwordMinLength: 'Пароль должен содержать не менее 8 символов.',
+  requestFailed: 'Не удалось войти. Попробуйте ещё раз.',
+  success: 'Вы успешно вошли.',
+  submit: 'Войти',
+  submitting: 'Входим...',
 };
 
-const RegistrationForm = (): JSX.Element => {
+const LoginForm = (): JSX.Element => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<RegistrationFormValues>();
+  } = useForm<LoginFormValues>();
 
-  const [registerUser, { isLoading, isError, error, isSuccess }] = useRegisterMutation();
+  const [login, { isLoading, isError, error, isSuccess }] = useLoginMutation();
 
-  const onSubmit = async (data: RegistrationFormValues): Promise<void> => {
-    await registerUser(data);
+  const onSubmit = async (data: LoginFormValues): Promise<void> => {
+    await login(data);
   };
 
   const apiErrorMessage =
@@ -72,33 +67,13 @@ const RegistrationForm = (): JSX.Element => {
       >
         <div className={styles.field}>
           <TextInput
-            label={copy.name}
-            name="name"
-            placeholder={copy.namePlaceholder}
-            autoComplete="name"
-            aria-invalid={Boolean(errors.name)}
-            aria-describedby={errors.name ? 'registration-name-error' : undefined}
-            register={register}
-            rules={{
-              required: copy.nameRequired,
-              minLength: { value: 2, message: copy.nameMinLength },
-            }}
-          />
-          {errors.name ? (
-            <p className={styles.error} id="registration-name-error" role="alert">
-              {errors.name.message}
-            </p>
-          ) : null}
-        </div>
-        <div className={styles.field}>
-          <TextInput
             label={copy.email}
             name="email"
             type="email"
             placeholder="name@example.com"
             autoComplete="email"
             aria-invalid={Boolean(errors.email)}
-            aria-describedby={errors.email ? 'registration-email-error' : undefined}
+            aria-describedby={errors.email ? 'login-email-error' : undefined}
             register={register}
             rules={{
               required: copy.emailRequired,
@@ -109,7 +84,7 @@ const RegistrationForm = (): JSX.Element => {
             }}
           />
           {errors.email ? (
-            <p className={styles.error} id="registration-email-error" role="alert">
+            <p className={styles.error} id="login-email-error" role="alert">
               {errors.email.message}
             </p>
           ) : null}
@@ -120,9 +95,9 @@ const RegistrationForm = (): JSX.Element => {
             name="password"
             type="password"
             placeholder={copy.passwordPlaceholder}
-            autoComplete="new-password"
+            autoComplete="current-password"
             aria-invalid={Boolean(errors.password)}
-            aria-describedby={errors.password ? 'registration-password-error' : undefined}
+            aria-describedby={errors.password ? 'login-password-error' : undefined}
             register={register}
             rules={{
               required: copy.passwordRequired,
@@ -130,7 +105,7 @@ const RegistrationForm = (): JSX.Element => {
             }}
           />
           {errors.password ? (
-            <p className={styles.error} id="registration-password-error" role="alert">
+            <p className={styles.error} id="login-password-error" role="alert">
               {errors.password.message}
             </p>
           ) : null}
@@ -153,4 +128,4 @@ const RegistrationForm = (): JSX.Element => {
   );
 };
 
-export default RegistrationForm;
+export default LoginForm;

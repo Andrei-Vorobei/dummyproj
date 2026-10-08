@@ -11,6 +11,11 @@
   color: #1f2937;
 }
 
+.inputWrapper {
+  position: relative;
+  width: 100%;
+}
+
 .input {
   width: 100%;
   box-sizing: border-box;
@@ -24,6 +29,34 @@
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
+}
+
+.passwordInput {
+  padding-right: 40px;
+}
+
+.passwordToggle {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border: 0;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.passwordToggle:disabled {
+  cursor: not-allowed;
+}
+
+.passwordToggle:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
 }
 
 .input:focus {
